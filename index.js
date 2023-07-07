@@ -8,12 +8,17 @@ const port = 3000;
 const buildQuestionSnippet = (question, answer) => `
   <p>${question}</p>
 
-  <form hx-patch='/answer'>
+  <form hx-patch='/answer' hx-target=".score" hx-swap="outerHtml">
     <input name="guess" type="text" />
     <input name="answer" type="text" value="${answer}" hidden />
     <button type="submit">Submit</button>
   </form>
 `;
+
+const buildScoreSnippet = (correct, total, message) => `
+  <p>Score: ${correct}/${total}</p>
+  <p>${message}</p>
+`
 
 app.use(express.static('./public'));
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -26,7 +31,8 @@ app.get('/random', async (req, res) => {
 });
 
 app.patch('/answer', (req, res) => {
-  console.log(req.body);
+  const scoreSnippet = buildScoreSnippet(0, 1, "Incorrect");
+  res.send(scoreSnippet);
 });
 
 app.listen(port, () => {

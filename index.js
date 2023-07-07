@@ -31,7 +31,11 @@ app.get('/random', async (req, res) => {
 });
 
 app.patch('/answer', (req, res) => {
-  const scoreSnippet = buildScoreSnippet(0, 1, "Incorrect");
+  const guess = req.body.guess;
+  const answer = req.body.answer;
+  const scoreSnippet = (guess === answer) 
+    ? buildScoreSnippet(1, 1, "Correct") 
+    : buildScoreSnippet(0, 1, "Incorrect");
   res.send(scoreSnippet);
 });
 

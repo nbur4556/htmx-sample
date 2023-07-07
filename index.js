@@ -1,3 +1,4 @@
+import bodyParser from 'body-parser';
 import express from 'express';
 import fetch from 'node-fetch';
 
@@ -7,14 +8,15 @@ const port = 3000;
 const buildQuestionSnippet = (question, answer) => `
   <p>${question}</p>
 
-  <label>
-    Answer
-    <input type="text" />
-    <button hx-put='/answer?answer=${answer}'>Submit</button>
-  </label>
+  <form hx-patch='/answer'>
+    <input name="guess" type="text" />
+    <input name="answer" type="text" value="${answer}" hidden />
+    <button type="submit">Submit</button>
+  </form>
 `;
 
 app.use(express.static('./public'));
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get('/random', async (req, res) => {
   const response = await (await fetch('https://jservice.io/api/random')).json();
@@ -23,8 +25,8 @@ app.get('/random', async (req, res) => {
   res.send(questionSnippet)
 });
 
-app.put('/answer', (req, res) => {
-  const query = req.query;
+app.patch('/answer', (req, res) => {
+  console.log(req.body);
 });
 
 app.listen(port, () => {

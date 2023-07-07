@@ -11,6 +11,7 @@ let questionsCorrect = 0;
 const buildQuestionSnippet = (question, answer) => `
   <p>${question}</p>
 
+  <p>Answer in the form of a question...</p>
   <form hx-patch='/answer' hx-target=".score" hx-swap="outerHtml">
     <label>What is <input name="guess" type="text" /></label>
     <input name="answer" type="text" value="${answer}" hidden />
@@ -23,27 +24,34 @@ const buildScoreSnippet = (message) => `
   <p>${message}</p>
 `
 
+const cleanAnswer = (answer) => {
+  const cleanedAnswer = answer.replace(/[^\w\s]/g, "").replace(/\s+/g, "");
+  const lowercaseAnswer = cleanedAnswer.toLowerCase();
+  return lowercaseAnswer;
+}
+
 app.use(express.static('./public'));
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get('/random', async (req, res) => {
   const response = await (await fetch('https://jservice.io/api/random')).json();
+  const question = response[0].question;
+  const answer = cleanAnswer(response[0].answer);
   questionsTotal++;
-  //TODO: Clean the answer before  sending to snippet
-  const questionSnippet = buildQuestionSnippet(response[0].question, response[0].answer);
+
+  const questionSnippet = buildQuestionSnippet(question, answer);
   res.send(questionSnippet)
 });
 
 app.patch('/answer', (req, res) => {
-  const guess = req.body.guess;
+  const guess = cleanAnswer(req.body.guess);
   const answer = req.body.answer;
-  const message = (guess === answer) ? "Correct" :  "Incorrect"
+  const message = (guess === answer) ? "Correct" :  `Incorrect (answer: ${answer})`
 
   if (guess === answer) {
     questionsCorrect ++;
   }
 
-  //TODO: Clean the guess before comparison
   const scoreSnippet = buildScoreSnippet(message);
   res.send(scoreSnippet);
 });

@@ -5,18 +5,21 @@ import fetch from 'node-fetch';
 const app = express();
 const port = 3000;
 
+let questionsTotal = 0;
+let questionsCorrect = 0;
+
 const buildQuestionSnippet = (question, answer) => `
   <p>${question}</p>
 
   <form hx-patch='/answer' hx-target=".score" hx-swap="outerHtml">
-    <input name="guess" type="text" />
+    <label>What is <input name="guess" type="text" /></label>
     <input name="answer" type="text" value="${answer}" hidden />
     <button type="submit">Submit</button>
   </form>
 `;
 
-const buildScoreSnippet = (correct, total, message) => `
-  <p>Score: ${correct}/${total}</p>
+const buildScoreSnippet = (message) => `
+  <p>Score: ${questionsCorrect}/${questionsTotal}</p>
   <p>${message}</p>
 `
 
@@ -25,6 +28,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get('/random', async (req, res) => {
   const response = await (await fetch('https://jservice.io/api/random')).json();
+  questionsTotal++;
   //TODO: Clean the answer before  sending to snippet
   const questionSnippet = buildQuestionSnippet(response[0].question, response[0].answer);
   res.send(questionSnippet)
@@ -33,9 +37,14 @@ app.get('/random', async (req, res) => {
 app.patch('/answer', (req, res) => {
   const guess = req.body.guess;
   const answer = req.body.answer;
-  const scoreSnippet = (guess === answer) 
-    ? buildScoreSnippet(1, 1, "Correct") 
-    : buildScoreSnippet(0, 1, "Incorrect");
+  const message = (guess === answer) ? "Correct" :  "Incorrect"
+
+  if (guess === answer) {
+    questionsCorrect ++;
+  }
+
+  //TODO: Clean the guess before comparison
+  const scoreSnippet = buildScoreSnippet(message);
   res.send(scoreSnippet);
 });
 

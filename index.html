@@ -4,8 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HTMX Trivia</title>
+
+    <script src="https://unpkg.com/htmx.org@1.9.2" defer></script>
   </head>
   <body>
-    
+    <h1>Hello World</h1>
+
+    <button hx-get="https://jservice.io/api/random" hx-target=".question" hx-swap="outerHtml">
+      Random Question
+    </button>
+
+    <p class="question">Question text goes here</p>
   </body>
 </html>

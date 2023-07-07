@@ -1,13 +1,16 @@
-const express = require('express');
-const path = require('path');
+import express from 'express';
+import fetch from 'node-fetch';
 
 const app = express();
 const port = 3000;
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static('./public'));
 
-app.get("/random", (req, res) => {
-  const htmlSnippet = "<p>Random question</p>"
+app.get('/random', async (req, res) => {
+  const response = await (await fetch('https://jservice.io/api/random')).json();
+  console.log(response);
+
+  const htmlSnippet = `<p>${response[0].question}</p>`
   res.send(htmlSnippet)
 });
 

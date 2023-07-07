@@ -10,7 +10,14 @@ app.get('/random', async (req, res) => {
   const response = await (await fetch('https://jservice.io/api/random')).json();
   console.log(response);
 
-  const htmlSnippet = `<p>${response[0].question}</p>`
+  const htmlSnippet = `
+    <p>${response[0].question}</p>
+    <label>
+      Answer
+      <input type="text" />
+      <button data-answer="${response[0].answer}">Submit</button>
+    </label>
+  `
   res.send(htmlSnippet)
 });
 
